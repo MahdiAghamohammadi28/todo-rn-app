@@ -39,7 +39,7 @@ export default function RootLayout() {
 
   const isOnAuth = useMemo(() => {
     const current = pathname ?? "";
-    return current.startsWith("/login") || current.startsWith("/singup");
+    return current.startsWith("/login") || current.startsWith("/signup");
   }, [pathname]);
 
   useEffect(() => {
