@@ -21,7 +21,9 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    let isMounted = true;
     supabase.auth.getSession().then(({ data }) => {
+      if (!isMounted) return;
       setSession(data.session);
       setIsSessionLoading(false);
     });
@@ -33,6 +35,7 @@ export default function RootLayout() {
     );
 
     return () => {
+      isMounted = false;
       authListener.subscription.unsubscribe();
     };
   }, []);
@@ -44,12 +47,16 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (isSessionLoading) return;
-    if (!session || !isOnAuth) {
-      router.replace("/login");
-    } else if (session && isOnAuth) {
+    // If the user IS authenticated and currently on an auth screen, move them to the app
+    if (session && isOnAuth) {
       router.replace("/(tabs)");
+      return;
     }
-  }, [session, isOnAuth, router, isSessionLoading]);
+    // If the user is NOT authenticated and is outside auth screens, send them to login
+    if (!session && !isOnAuth) {
+      router.replace("/login");
+    }
+  }, [session, isOnAuth, isSessionLoading, router]);
 
   useEffect(() => {
     if (loaded || error) {
