@@ -16,6 +16,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <SvgIcons name={"home"} size={24} color={color} />
           ),
+          tabBarLabelStyle: {
+            fontFamily: "poppins-medium",
+          },
         }}
       />
       <Tabs.Screen
@@ -25,6 +28,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <SvgIcons name={"settings"} size={24} color={color} />
           ),
+          tabBarLabelStyle: {
+            fontFamily: "poppins-medium",
+          },
         }}
       />
     </Tabs>
