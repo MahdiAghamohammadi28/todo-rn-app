@@ -2,12 +2,15 @@ import CreateTodoModal from "@/components/CreateTodoModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import FlatListRenderItem from "@/components/FlatListRenderItem";
 import Header from "@/components/Header";
+import ReminderModal from "@/components/ReminderModal";
 import SvgIcons from "@/contants/SvgIcons";
 import { supabase } from "@/lib/supabase";
+import * as Notifications from "expo-notifications";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -26,6 +29,37 @@ export default function Home() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReminderOpen, setIsReminderOpen] = useState(false);
+  const [reminderTarget, setReminderTarget] = useState(null);
+  const [reminderDate, setReminderDate] = useState(null);
+
+  useEffect(() => {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+    (async () => {
+      const settings = await Notifications.getPermissionsAsync();
+      let granted = settings.status === "granted";
+      if (!granted) {
+        const req = await Notifications.requestPermissionsAsync();
+        granted = req.status === "granted";
+      }
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "Default",
+          importance: Notifications.AndroidImportance.DEFAULT,
+          sound: "default",
+          vibrationPattern: [250, 250],
+          lockscreenVisibility:
+            Notifications.AndroidNotificationVisibility.PUBLIC,
+        });
+      }
+    })();
+  }, []);
 
   const fetchTodos = useCallback(async () => {
     setErrorMessage("");
@@ -139,6 +173,11 @@ export default function Home() {
                 setIsCreateOpen={setIsCreateOpen}
                 setDeleteTarget={setDeleteTarget}
                 setIsDeleteOpen={setIsDeleteOpen}
+                onPressReminder={(todo) => {
+                  setReminderTarget(todo);
+                  setReminderDate(null);
+                  setIsReminderOpen(true);
+                }}
                 onToggleComplete={toggleComplete}
               />
             )}
@@ -177,6 +216,33 @@ export default function Home() {
         onCreated={fetchTodos}
         onUpdated={fetchTodos}
         initialTodo={editingTodo}
+      />
+      <ReminderModal
+        visible={isReminderOpen}
+        onClose={() => {
+          setIsReminderOpen(false);
+          setReminderTarget(null);
+          setReminderDate(null);
+        }}
+        initialDate={reminderDate}
+        onConfirm={async (date) => {
+          setReminderDate(date);
+          setIsReminderOpen(false);
+          if (!date || !reminderTarget) return;
+          try {
+            const trigger = date;
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: "Task Reminder",
+                body: `Don't forgot: ${reminderTarget?.title || "Task"}`,
+                data: { todoId: reminderTarget?.id },
+              },
+              trigger,
+            });
+          } catch (e) {
+            console.log("Schedule notification error:", e?.message || e);
+          }
+        }}
       />
       <DeleteConfirmModal
         visible={isDeleteOpen}
