@@ -64,7 +64,11 @@ export default function Home() {
   const fetchTodos = useCallback(async () => {
     setErrorMessage("");
     try {
-      const { data, error } = await supabase.from("todos").select("*");
+      const { data, error } = await supabase
+        .from("todos")
+        .select("*")
+        .order("is_completed", { ascending: true })
+        .order("id", { ascending: false });
       if (error) throw error;
       setTodos(data);
     } catch (error) {
