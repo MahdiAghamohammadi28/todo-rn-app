@@ -8,6 +8,7 @@ export default function FlatListRenderItem({
   setIsCreateOpen,
   setDeleteTarget,
   setIsDeleteOpen,
+  onPressReminder,
   onToggleComplete,
 }) {
   const getPriorityStyle = useCallback((priority, isCompleted) => {
@@ -87,6 +88,9 @@ export default function FlatListRenderItem({
             size={16}
             color={item?.is_completed === true ? "#10b981" : "#282828"}
           />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => onPressReminder?.(item)}>
+          <SvgIcons name="notification" size={16} color={"#282828"} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => handleEdit(item)}>
           <SvgIcons name="edit" size={16} color={"#282828"} />
