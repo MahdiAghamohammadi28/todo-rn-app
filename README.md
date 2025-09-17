@@ -1,50 +1,75 @@
-# Welcome to your Expo app 👋
+## Todo RN App (Expo + Supabase)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Cross‑platform todo app built with Expo Router and Supabase. It supports creating, updating and deleting todos, reminders with notifications, and persistent auth using Supabase.
 
-## Get started
+### Tech stack
+
+- Expo (React Native, Expo Router)
+- Supabase (Auth + Database)
+- AsyncStorage session persistence
+
+## Quick start
 
 1. Install dependencies
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Configure environment variables (required)
 
-## Learn more
+Create a `.env.local` file in the project root and add your Supabase project credentials:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+EXPO_PUBLIC_SUPABASE_URL=your-supabase-url
+EXPO_PUBLIC_SUPABASE_KEY=your-supabase-anon-key
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Notes:
 
-## Join the community
+- Both variables are required for the app to run. They are read in `lib/supabase.js` via `process.env.EXPO_PUBLIC_SUPABASE_URL` and `process.env.EXPO_PUBLIC_SUPABASE_KEY`.
+- The `EXPO_PUBLIC_` prefix makes these safe to expose to the client. Use your project’s anon/public key (not the service role key).
 
-Join our community of developers creating universal apps.
+3. Start the app
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo start
+```
+
+Then press `a` for Android, `i` for iOS, or `w` for web. You can also scan the QR code with Expo Go.
+
+## Supabase setup (summary)
+
+1. Create a project at `https://supabase.com`.
+2. Copy the project URL and the anon/public API key from Project Settings → API.
+3. Create a `todos` table (or adapt to your schema) and ensure RLS policies allow read/write for authenticated users.
+4. Enable Email/Password auth (or your preferred provider) in Authentication → Providers.
+
+## Scripts
+
+- `npm start` – start Metro with Expo
+- `npm run android` – run on Android
+- `npm run ios` – run on iOS simulator (macOS)
+- `npm run web` – run in web
+- `npm run lint` – lint the project
+
+## Project structure (high level)
+
+- `app/` – screens and routing (Expo Router)
+- `components/` – shared UI components and modals
+- `lib/supabase.js` – initialized Supabase client
+- `assets/` – fonts and images
+
+## Notifications & permissions
+
+Reminders use notifications via `expo-notifications`. On first use, the app will request notification permissions on device/platforms that require it.
+
+## Troubleshooting
+
+- Missing env vars: ensure `.env.local` exists and includes both `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY`, then restart the dev server.
+- Android emulator on Windows: start Android Studio’s emulator before running `npx expo start`, or press `a` after Metro starts.
+- iOS requires macOS with Xcode installed.
+
+## License
+
+MIT
